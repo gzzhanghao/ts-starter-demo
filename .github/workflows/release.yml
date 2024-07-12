@@ -22,8 +22,14 @@ jobs:
 
       - run: pnpm i --frozen-lockfile
 
+      - name: Prep commit message
+        run: |
+          echo "NEW_VERSION=$(pnpm changeset status --output=release.json && jq -r '.releases[0].newVersion' release.json && rm release.json)" >> "$GITHUB_ENV"
+
       - uses: changesets/action@v1
         with:
+          commit: "chore: release v${{ env.NEW_VERSION }}"
+          title: "Release v${{ env.NEW_VERSION }}"
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
